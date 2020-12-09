@@ -1,14 +1,14 @@
 package mvc
 
 import (
-	"fmt"
 	"log"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/db"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/discord"
 )
 
-func GroupmeReceive(name, avatar, content, groupID string) error {
+func GroupmeReceive(name, avatar, content, groupID string, attachments interface{}) error {
 	wi, wt, err := db.WebhookFromGroupID(groupID)
 	if err != nil {
 		log.Print(groupID + ": ")
@@ -36,10 +36,16 @@ func GroupmeReceive(name, avatar, content, groupID string) error {
 		}
 	}
 
-	fmt.Println(wi, wt)
+	DiscordSend(name, content, avatar, wi, wt, attachments)
 	return nil
 }
-func DiscordSend(name, content, avatar, webhookURL, webhookToken string) error { return nil }
+func DiscordSend(name, content, avatar, webhookID, webhookToken string, attachments interface{}) error {
+	data := discordgo.WebhookParams{Content: content, Username: name, AvatarURL: avatar}
+
+	discord.CallWebhook(webhookID, webhookToken, &data)
+
+	return nil
+}
 
 func DiscordReceive() {}
 func GroupmeSend()    {}

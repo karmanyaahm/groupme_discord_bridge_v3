@@ -1,13 +1,17 @@
 package groupme
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/adammohammed/groupmebot"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/config"
+	"github.com/karmanyaahm/groupme_discord_bridge_v3/mvc"
 )
+
+var serv *http.Server
 
 func Listen() {
 	logger := groupmebot.StdOutLogger{}
@@ -17,19 +21,26 @@ func Listen() {
 	bot.TrackBotMessages = false
 	//bot.HandleMessage = handler
 
-	http.HandleFunc("/", bot.Handler())
+	mux := http.NewServeMux()
 
-	log.Fatal(http.ListenAndServe(config.Addr, nil))
+	mux.HandleFunc("/", bot.Handler())
 
+	serv = &http.Server{Addr: config.Addr, Handler: mux}
+	log.Fatal(serv.ListenAndServe())
+
+}
+
+func Close() {
+	log.Println("Http Shutting Down")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer func() { cancel() }()
+	serv.Shutdown(ctx)
+	log.Println("Http Shut Down")
 }
 
 func handler(m groupmebot.InboundMessage) string {
 
-	fmt.Println(m.Name)
-	fmt.Println(m.Group_id)
-	fmt.Println(m.Avatar_url)
-	fmt.Println(m.Text)
-	fmt.Println(m.Attachments)
+	mvc.GroupmeReceive(m.Name, m.Avatar_url, m.Text, m.Group_id, m.Attachments)
 
 	return ""
 }

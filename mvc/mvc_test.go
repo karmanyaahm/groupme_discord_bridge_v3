@@ -12,6 +12,6 @@ func TestGroupmeReceive(t *testing.T) {
 	db.Parse()
 	go discord.Main()
 	time.Sleep(1 * time.Second)
-	GroupmeReceive("name", "", "msgcontent", "60941041")
+	GroupmeReceive("name", "", "msgcontent", "60941041", 1)
 
 }
