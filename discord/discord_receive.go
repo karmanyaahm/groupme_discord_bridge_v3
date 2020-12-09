@@ -49,9 +49,23 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	fmt.Println(m.ChannelID)
-	_, err := s.ChannelMessageSend(m.ChannelID, m.Author.Username + " sent this message")
+	_, err := s.ChannelMessageSend(m.ChannelID, m.Author.Username+" sent this message")
 	if err != nil {
 		fmt.Println(err)
 	}
 
+}
+
+func IssueWebhook(ci string) (string, string, error) {
+
+	wh, err := Session.WebhookCreate(ci, "Groupme Sync", "")
+	if err != nil {
+		return "", "", err
+	}
+	return wh.ID, wh.Token, nil
+}
+
+func CallWebhook(id, token string, data *discordgo.WebhookParams) {
+
+	Session.WebhookExecute(id, token, false, data)
 }
