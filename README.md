@@ -6,3 +6,6 @@
  
  Use a discord bot URL like: 
  `https://discord.com/api/oauth2/authorize?client_id=<yourid>&permissions=537250816&scope=bot`
+
+
+Running the python script could help with groupme setup thought <dev.groupme.com> can do the same.
