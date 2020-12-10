@@ -1,6 +1,6 @@
 secret.go
 config.toml
-
+builds/
 
 # Created by https://www.toptal.com/developers/gitignore/api/kate,vscode,vim,go
 # Edit at https://www.toptal.com/developers/gitignore?templates=kate,vscode,vim,go
