@@ -44,9 +44,6 @@ def callback():
                 """
         ans += "</ol>"
 
-    print(bots[0].data)
-    print(dir(bots[0]))
-
     return ans
 
 
