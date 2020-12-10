@@ -16,10 +16,10 @@ type Connection struct {
 	BotID   string `mapstructure:"groupme_bot_id" toml:"groupme_bot_id"`
 	GroupID string `mapstructure:"groupme_group_id" toml:"groupme_group_id"`
 
-	ChannelID []string `mapstructure:"discord_channels" toml:"discord_channels" comment:"First channel is where groupmes are sent back to"`
-
-	WebhookID    string `mapstructure:"webhook_id,omitempty" toml:"webhook_id"`
-	WebhookToken string `mapstructure:"webhook_token,omitempty" toml:"webhook_token"`
+	ChannelID        map[string]string `mapstructure:"discord_channels" toml:"discord_channels"`
+	PrimaryChannelID string            `mapstructure:"primary_channel" toml:"primary_channel"`
+	WebhookID        string            `mapstructure:"webhook_id,omitempty" toml:"webhook_id"`
+	WebhookToken     string            `mapstructure:"webhook_token,omitempty" toml:"webhook_token"`
 }
 
 type Config struct {
@@ -47,9 +47,24 @@ func Parse() {
 
 func BotIDFromChannelID(s string) (string, error) {
 	for _, i := range conf.Connection {
-		for _, j := range i.ChannelID {
+		for j := range i.ChannelID {
 			if j == s {
 				return i.BotID, nil
+			}
+		}
+	}
+	return "", errors.New("Not Found")
+}
+
+func ChannelNameFromChannelID(s string) (string, error) {
+	for _, i := range conf.Connection {
+		for j, k := range i.ChannelID {
+			if j == s {
+				if len(k) == 0 {
+					return "", errors.New("No Name")
+
+				}
+				return k, nil
 			}
 		}
 	}
@@ -62,7 +77,7 @@ func ChannelIDFromGroupID(s string) (string, error) {
 			if len(i.ChannelID) == 0 {
 				return "", errors.New("Not Found")
 			}
-			return i.ChannelID[0], nil
+			return i.PrimaryChannelID, nil
 		}
 	}
 	return "", errors.New("Not Found")
@@ -79,17 +94,7 @@ func WebhookFromGroupID(s string) (string, string, error) {
 	}
 	return "", "", errors.New("Not Found")
 }
-
-func AddWebhook(gid, wi, wt string) error {
-	var index int
-	for j, i := range conf.Connection {
-		if i.GroupID == gid {
-			index = j
-			break
-		}
-	}
-	conf.Connection[index].WebhookID = wi
-	conf.Connection[index].WebhookToken = wt
+func updateDB() error {
 
 	b, err := toml.Marshal(conf)
 	if err != nil {
@@ -102,4 +107,32 @@ func AddWebhook(gid, wi, wt string) error {
 		return err
 	}
 	return nil
+}
+func AddWebhook(gid, wi, wt string) error {
+	var index int
+	//fmt.Println(gid, wi, wt)
+	for j, i := range conf.Connection {
+		if i.GroupID == gid {
+			index = j
+			break
+		}
+	}
+	conf.Connection[index].WebhookID = wi
+	conf.Connection[index].WebhookToken = wt
+	return updateDB()
+	//	return nil
+}
+
+func AddChannelName(channelID, channelName string) error {
+	var index int
+	for k, i := range conf.Connection {
+		for j := range i.ChannelID {
+			if j == channelID {
+				index = k
+			}
+		}
+	}
+	conf.Connection[index].ChannelID[channelID] = channelName
+	return updateDB()
+
 }

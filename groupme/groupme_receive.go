@@ -39,7 +39,6 @@ func Close() {
 }
 
 func handler(m groupmebot.InboundMessage) string {
-
 	mvc.GroupmeReceive(m.Name, m.Avatar_url, m.Text, m.Group_id, m.Attachments)
 
 	return ""

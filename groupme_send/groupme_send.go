@@ -1,4 +1,4 @@
-package groupme
+package groupme_send
 
 import (
 	"bytes"

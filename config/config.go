@@ -1,7 +1,10 @@
 package config
 
-var Addr string
+import "github.com/bwmarrin/discordgo"
 
-func init(){
+var Addr string
+var Discord_Session *discordgo.Session
+
+func init() {
 	Addr = "localhost:5000"
 }

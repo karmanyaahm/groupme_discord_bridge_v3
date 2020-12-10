@@ -7,60 +7,50 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/config"
+	"github.com/karmanyaahm/groupme_discord_bridge_v3/mvc"
 )
 
-var Session, _ = discordgo.New()
+var session **discordgo.Session
 
 func init() {
+	config.Discord_Session, _ = discordgo.New()
+	session = &config.Discord_Session
+	//s := config.Discord_Session
+	//fmt.Printf("%v %p %v\n", &s, s, *s)
+	//s = session
+	//fmt.Printf("%v %p %v\n", &s, s, *s)
 
+	//os.Exit(1)
 	// Discord Authentication Token
-	Session.Token = config.DiscordToken
+	(*session).Token = config.DiscordToken
 }
 
 func Main() {
 	fmt.Println("discord package")
-	err := Session.Open()
+	err := (*session).Open()
 	if err != nil {
 		log.Printf("error opening connection to Discord, %s\n", err)
 		os.Exit(1)
 	}
 
-	Session.AddHandler(messageCreate)
+	(*session).AddHandler(messageHandler)
 
 	// In this example, we only care about receiving message events.
-	Session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
-
-	log.Printf(`Now running. Press CTRL-C to exit.`)
+	(*session).Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
 
 }
 func Close() {
 	log.Println("Discord Shutting Down")
-	Session.Close()
+	(*session).Close()
 	log.Println("Discord Shut Down")
 }
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	if m.Author.ID == s.State.User.ID { // ignore itself
+func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.Bot { // ignore itself //ignore all bots not just itself
 		return
 	}
-	fmt.Println(m.ChannelID)
-	_, err := s.ChannelMessageSend(m.ChannelID, m.Author.Username+" sent this message")
+	err := mvc.DiscordReceive(m.Author.Username, m.Content, m.ChannelID, m.Attachments)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-}
-
-func IssueWebhook(ci string) (string, string, error) {
-
-	wh, err := Session.WebhookCreate(ci, "Groupme Sync", "")
-	if err != nil {
-		return "", "", err
-	}
-	return wh.ID, wh.Token, nil
-}
-
-func CallWebhook(id, token string, data *discordgo.WebhookParams) {
-
-	Session.WebhookExecute(id, token, false, data)
 }
