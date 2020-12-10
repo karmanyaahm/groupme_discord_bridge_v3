@@ -3,6 +3,7 @@ package mvc
 import (
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/db"
@@ -62,7 +63,7 @@ func DiscordSend(name, content, avatar, webhookID, webhookToken string, attachme
 	return nil
 }
 
-func DiscordReceive(name, content, channelID string, attachments interface{}) error {
+func DiscordReceive(name, content, channelID string, attachments []*discordgo.MessageAttachment) error {
 	channelName, e := db.ChannelNameFromChannelID(channelID)
 
 	if e != nil {
@@ -96,8 +97,19 @@ func DiscordReceive(name, content, channelID string, attachments interface{}) er
 	GroupmeSend(name, content, channelName, botID, attachments)
 	return nil
 }
-func GroupmeSend(name, content, channelName, botID string, attachments interface{}) {
-	log.Println(name, content, channelName)
+
+func GroupmeSend(name, content, channelName, botID string, attachments []*discordgo.MessageAttachment) {
+	//log.Println(name, content, channelName)
+
 	groupme_send.Send(botID, fmt.Sprintf("%s: %s: %s", channelName, name, content))
+	for _, attachment := range attachments {
+		if m, e := regexp.Match(`(?i)\.(gif|jpe?g|tiff?|png|webp|bmp)$`, []byte(attachment.Filename)); m {
+			//log.Println("image")
+			if e != nil {
+				log.Println(e)
+			}
+			groupme_send.SendWithImage(botID, "", attachment.URL)
+		}
+	}
 
 }

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/adammohammed/groupmebot"
-	"github.com/karmanyaahm/groupme_discord_bridge_v3/config"
+	"github.com/karmanyaahm/groupme_discord_bridge_v3/db"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/mvc"
 )
 
@@ -25,7 +25,7 @@ func Listen() {
 
 	mux.HandleFunc("/", bot.Handler())
 
-	serv = &http.Server{Addr: config.Addr, Handler: mux}
+	serv = &http.Server{Addr: db.Addr, Handler: mux}
 	log.Fatal(serv.ListenAndServe())
 
 }

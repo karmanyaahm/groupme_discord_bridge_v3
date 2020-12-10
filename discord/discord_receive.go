@@ -7,6 +7,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/config"
+	"github.com/karmanyaahm/groupme_discord_bridge_v3/db"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/mvc"
 )
 
@@ -22,11 +23,12 @@ func init() {
 
 	//os.Exit(1)
 	// Discord Authentication Token
-	(*session).Token = config.DiscordToken
 }
 
 func Main() {
 	fmt.Println("discord package")
+
+	(*session).Token = db.DiscordToken
 	err := (*session).Open()
 	if err != nil {
 		log.Printf("error opening connection to Discord, %s\n", err)

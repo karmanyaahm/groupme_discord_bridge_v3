@@ -11,6 +11,8 @@ import (
 )
 
 var conf Config
+var DiscordToken string
+var Addr string
 
 type Connection struct {
 	BotID   string `mapstructure:"groupme_bot_id" toml:"groupme_bot_id"`
@@ -23,7 +25,9 @@ type Connection struct {
 }
 
 type Config struct {
-	Connection []Connection
+	Address         string
+	DiscordBotToken string
+	Connection      []Connection
 }
 
 func Parse() {
@@ -42,7 +46,13 @@ func Parse() {
 		fmt.Printf("unable to decode into config struct, %v", err)
 	}
 	//	fmt.Println(conf)
+	if conf.DiscordBotToken[:4] != "Bot " {
+		conf.DiscordBotToken = "Bot " + conf.DiscordBotToken
+	}
+	DiscordToken = conf.DiscordBotToken
+	//log.Println(conf.DiscordBotToken, conf.DiscordBotToken[:4])
 
+	Addr = conf.Address
 }
 
 func BotIDFromChannelID(s string) (string, error) {

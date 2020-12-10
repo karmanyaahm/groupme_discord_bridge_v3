@@ -1,0 +1,9 @@
+Address="localhost:5000" #address to listen on. this is server confg
+DiscordBotToken = "secret" #this is your discord bot secret. If you're in that situation, don't append "bot " to the front of the token. The program automatically does that
+[[Connection]]
+  groupme_bot_id = "bot id"
+  groupme_group_id = "group id from bot id"
+  primary_channel = "discord channel number"
+
+  [Connection.discord_channels]
+    "discord channel number with or without quotes" = "" #yes thats empty
