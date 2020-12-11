@@ -50,7 +50,13 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.Bot { // ignore itself //ignore all bots not just itself
 		return
 	}
-	err := mvc.DiscordReceive(m.Author.Username, m.Content, m.ChannelID, m.Attachments)
+
+	name := m.Author.Username
+	if len(m.Member.Nick) > 0 {
+		name = m.Member.Nick
+	}
+
+	err := mvc.DiscordReceive(name, m.Content, m.ChannelID, m.Attachments)
 	if err != nil {
 		fmt.Println(err)
 	}
