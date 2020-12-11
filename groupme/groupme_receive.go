@@ -14,7 +14,7 @@ import (
 var serv *http.Server
 
 func Listen() {
-	logger := groupmebot.StdOutLogger{}
+	logger := groupmebot.CompositeLogger{}
 	bot := groupmebot.GroupMeBot{Logger: logger}
 	bot.Hooks = make(map[string]func(groupmebot.InboundMessage) string)
 	bot.AddHook(".*", handler)
