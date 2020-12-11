@@ -64,13 +64,18 @@ func DiscordSend(name, content, avatar, webhookID, webhookToken string, attachme
 }
 
 func DiscordReceive(name, content, channelID string, attachments []*discordgo.MessageAttachment) error {
-	channelName, e := db.ChannelNameFromChannelID(channelID)
+	channelName, err := db.ChannelNameFromChannelID(channelID)
+	channelPostfix := ": "
 
-	if e != nil {
-		log.Print(channelID + ": ")
-		log.Println(e)
-		if e.Error() == "No Name" {
-			channelName, err := discord_utils.GetChannelName(channelID)
+	if err != nil {
+		//	log.Print(channelID + ": ")
+		//	log.Println(err)
+
+		if err.Error() == "Only Name" {
+			channelName = ""
+			channelPostfix = ""
+		} else if err.Error() == "No Name" {
+			channelName, err = discord_utils.GetChannelName(channelID)
 			if err != nil {
 				log.Println("serious issue with " + channelID)
 				log.Println(err)
@@ -83,7 +88,7 @@ func DiscordReceive(name, content, channelID string, attachments []*discordgo.Me
 				return err
 			}
 		} else {
-			return e
+			return err
 		}
 	}
 
@@ -94,14 +99,14 @@ func DiscordReceive(name, content, channelID string, attachments []*discordgo.Me
 		log.Println(channelID)
 	}
 
-	GroupmeSend(name, content, channelName, botID, attachments)
+	GroupmeSend(name, content, channelName+channelPostfix, botID, attachments)
 	return nil
 }
 
-func GroupmeSend(name, content, channelName, botID string, attachments []*discordgo.MessageAttachment) {
+func GroupmeSend(name, content, channelPrefix, botID string, attachments []*discordgo.MessageAttachment) {
 	//log.Println(name, content, channelName)
 
-	groupme_send.Send(botID, fmt.Sprintf("%s: %s: %s", channelName, name, content))
+	groupme_send.Send(botID, fmt.Sprintf("%s%s: %s", channelPrefix, name, content))
 	for _, attachment := range attachments {
 		if m, e := regexp.Match(`(?i)\.(gif|jpe?g|tiff?|png|webp|bmp)$`, []byte(attachment.Filename)); m {
 			//log.Println("image")

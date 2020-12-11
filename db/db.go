@@ -74,7 +74,12 @@ func ChannelNameFromChannelID(s string) (string, error) {
 					return "", errors.New("No Name")
 
 				}
-				return k, nil
+
+				if len(i.ChannelID) == 1 {
+					return k, errors.New("Only Name")
+				} else {
+					return k, nil
+				}
 			}
 		}
 	}
