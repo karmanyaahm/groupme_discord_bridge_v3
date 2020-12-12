@@ -26,20 +26,31 @@ func Listen() {
 	mux.HandleFunc("/", bot.Handler())
 
 	serv = &http.Server{Addr: db.Addr, Handler: mux}
-	log.Fatal(serv.ListenAndServe())
+	go func() {
+		err := serv.ListenAndServe()
+		if err.Error() != "http: Server closed" {
+			log.Println(err)
+		}
+	}()
 
 }
 
 func Close() {
 	log.Println("Http Shutting Down")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer func() { cancel() }()
-	serv.Shutdown(ctx)
+	defer cancel()
+	if err := serv.Shutdown(ctx); err != nil {
+		log.Print("shutdown error: ")
+		log.Println(err)
+	}
+
 	log.Println("Http Shut Down")
 }
 
+var receiveFunc = mvc.GroupmeReceive
+
 func handler(m groupmebot.InboundMessage) string {
-	mvc.GroupmeReceive(m.Name, m.Avatar_url, m.Text, m.Group_id, m.Attachments)
+	receiveFunc(m.Name, m.Avatar_url, m.Text, m.Group_id, m.Attachments)
 
 	return ""
 }
