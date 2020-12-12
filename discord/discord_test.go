@@ -19,10 +19,8 @@ func TestNameProccessor(t *testing.T) {
 	objs := map[string]discordgo.MessageCreate{
 		//	"myname": discordgo.MessageCreate{
 		//		&discordgo.Message{Author: &discordgo.User{Username: "myname"}}},
-		"mynick": discordgo.MessageCreate{
-			&discordgo.Message{Author: &discordgo.User{Username: "myname"}, Member: &discordgo.Member{Nick: "mynick"}}},
-		"mynameagain": discordgo.MessageCreate{
-			&discordgo.Message{Author: &discordgo.User{Username: "mynameagain"}, Member: &discordgo.Member{Nick: ""}}},
+		"mynick":      discordgo.MessageCreate{Message: &discordgo.Message{Author: &discordgo.User{Username: "myname"}, Member: &discordgo.Member{Nick: "mynick"}}},
+		"mynameagain": discordgo.MessageCreate{Message: &discordgo.Message{Author: &discordgo.User{Username: "mynameagain"}, Member: &discordgo.Member{Nick: ""}}},
 	}
 
 	for ans, msg := range objs {
