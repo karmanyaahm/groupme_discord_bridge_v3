@@ -2,18 +2,16 @@ package discord
 
 import (
 	"testing"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/karmanyaahm/groupme_discord_bridge_v3/db"
 )
 
-func TestConnection(t *testing.T) {
-	db.Parse()
-	Main()
-	time.Sleep(time.Second)
-	Close()
-}
+//func TestConnection(t *testing.T) {
+//	db.DiscordToken = "Bot "
+//	Main()
+//	time.Sleep(time.Second)
+//	Close()
+//}
 
 func TestNameProccessor(t *testing.T) {
 	objs := map[string]discordgo.MessageCreate{

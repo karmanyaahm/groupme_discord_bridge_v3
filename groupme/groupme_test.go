@@ -13,7 +13,6 @@ import (
 //	SendWithImage(config.GroupmeBotId, "aa", "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1280px-Image_created_with_a_mobile_phone.png")
 //}
 func TestReceive(t *testing.T) {
-	db.Parse()
 	db.Addr = "localhost:5000"
 	works := false
 	receiveFunc = func(name, avatar_url, text, group_id string, attachments []map[string]interface{}) error {

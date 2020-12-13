@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/karmanyaahm/groupme_discord_bridge_v3/config"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/db"
 	"github.com/karmanyaahm/groupme_discord_bridge_v3/mvc"
 )
@@ -13,8 +12,8 @@ import (
 var session **discordgo.Session
 
 func init() {
-	config.Discord_Session, _ = discordgo.New()
-	session = &config.Discord_Session
+	db.Discord_Session, _ = discordgo.New()
+	session = &db.Discord_Session
 	//s := config.Discord_Session
 	//fmt.Printf("%v %p %v\n", &s, s, *s)
 	//s = session

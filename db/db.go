@@ -6,6 +6,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/jinzhu/copier"
 	"github.com/pelletier/go-toml"
 	"github.com/spf13/viper"
@@ -14,6 +15,7 @@ import (
 var conf Config
 var DiscordToken string
 var Addr string
+var Discord_Session *discordgo.Session
 
 type Connection struct {
 	BotID   string `mapstructure:"groupme_bot_id" toml:"groupme_bot_id"`

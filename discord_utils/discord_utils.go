@@ -5,13 +5,13 @@ import (
 	"log"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/karmanyaahm/groupme_discord_bridge_v3/config"
+	"github.com/karmanyaahm/groupme_discord_bridge_v3/db"
 )
 
 var session **discordgo.Session
 
 func init() {
-	session = &config.Discord_Session
+	session = &db.Discord_Session
 }
 
 func GetChannelName(ci string) (string, error) {
