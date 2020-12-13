@@ -2,10 +2,11 @@ package db
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 
+	"github.com/jinzhu/copier"
 	"github.com/pelletier/go-toml"
 	"github.com/spf13/viper"
 )
@@ -30,31 +31,68 @@ type Config struct {
 	Connection      []Connection
 }
 
-func Parse() {
-	viper.SetConfigName("config")
-	viper.AddConfigPath("..")
-	viper.AddConfigPath(".")
+func postParseInit() {
+	//Primary Channel Mod
+	for i, con := range conf.Connection { //for every channelid
+		if len(con.ChannelID) == 0 { //create if doesn't exist
+			conf.Connection[i].ChannelID = map[string]string{}
+		}
 
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file, %s", err)
+		if conf.Connection[i].ChannelID[con.PrimaryChannelID] == "" { //if primarychannel isn't a value
+			conf.Connection[i].ChannelID[con.PrimaryChannelID] = "" //make it one
+		}
+		//	for j, k := range conf.Connection[i].ChannelID {
+		//		log.Println(i, j, k, len(k))
+		//	}
+		//	log.Println(con.ChannelID["chanid1."])
 	}
 
-	conf = Config{}
-	err := viper.Unmarshal(&conf)
-
-	if err != nil {
-		fmt.Printf("unable to decode into config struct, %v", err)
-	}
-	//	fmt.Println(conf)
-	if conf.DiscordBotToken[:4] != "Bot " {
+	//Bot Identifier Discord
+	if !strings.HasPrefix(conf.DiscordBotToken, "Bot ") {
 		conf.DiscordBotToken = "Bot " + conf.DiscordBotToken
 	}
-	DiscordToken = conf.DiscordBotToken
-	//log.Println(conf.DiscordBotToken, conf.DiscordBotToken[:4])
 
+}
+
+func Parse() {
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+
+	dbRead()
+	conf = Config{}
+	if err := viper.Unmarshal(&conf); err != nil {
+		log.Fatalf("unable to decode into config struct, %v", err)
+	}
+	postParseInit()
+
+	DiscordToken = conf.DiscordBotToken
 	Addr = conf.Address
 }
 
+var dbRead = func() {
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+	}
+}
+var dbWrite = func(b []byte) error {
+	err := ioutil.WriteFile(viper.ConfigFileUsed(), b, 0644)
+	return err
+}
+
+func updateDB(conf Config) error {
+
+	b, err := toml.Marshal(conf)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	if err := dbWrite(b); err != nil {
+		log.Println(err)
+		return err
+	}
+	Parse()
+	return nil
+}
 func BotIDFromChannelID(s string) (string, error) {
 	for _, i := range conf.Connection {
 		for j := range i.ChannelID {
@@ -62,6 +100,7 @@ func BotIDFromChannelID(s string) (string, error) {
 				return i.BotID, nil
 			}
 		}
+
 	}
 	return "", errors.New("Not Found")
 }
@@ -70,13 +109,12 @@ func ChannelNameFromChannelID(s string) (string, error) {
 	for _, i := range conf.Connection {
 		for j, k := range i.ChannelID {
 			if j == s {
-				if len(k) == 0 {
-					return "", errors.New("No Name")
-
-				}
 
 				if len(i.ChannelID) == 1 {
-					return k, errors.New("Only Name")
+					return "", errors.New("Only Name")
+				} else if len(k) == 0 {
+					return "", errors.New("No Name")
+
 				} else {
 					return k, nil
 				}
@@ -89,9 +127,6 @@ func ChannelNameFromChannelID(s string) (string, error) {
 func ChannelIDFromGroupID(s string) (string, error) {
 	for _, i := range conf.Connection {
 		if i.GroupID == s {
-			if len(i.ChannelID) == 0 {
-				return "", errors.New("Not Found")
-			}
 			return i.PrimaryChannelID, nil
 		}
 	}
@@ -109,45 +144,36 @@ func WebhookFromGroupID(s string) (string, string, error) {
 	}
 	return "", "", errors.New("Not Found")
 }
-func updateDB() error {
 
-	b, err := toml.Marshal(conf)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	err = ioutil.WriteFile(viper.ConfigFileUsed(), b, 0644)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	return nil
-}
+//TODO: Lock something during both Add methods to avoid race condition
 func AddWebhook(gid, wi, wt string) error {
+	myConf := Config{}
+	copier.Copy(&myConf, &conf)
 	var index int
-	//fmt.Println(gid, wi, wt)
-	for j, i := range conf.Connection {
+	for j, i := range myConf.Connection {
 		if i.GroupID == gid {
 			index = j
 			break
 		}
 	}
-	conf.Connection[index].WebhookID = wi
-	conf.Connection[index].WebhookToken = wt
-	return updateDB()
-	//	return nil
+	myConf.Connection[index].WebhookID = wi
+	myConf.Connection[index].WebhookToken = wt
+	return updateDB(myConf)
 }
 
 func AddChannelName(channelID, channelName string) error {
+	myConf := Config{}
+	copier.Copy(&myConf, &conf)
+
 	var index int
-	for k, i := range conf.Connection {
+	for k, i := range myConf.Connection {
 		for j := range i.ChannelID {
 			if j == channelID {
 				index = k
 			}
 		}
 	}
-	conf.Connection[index].ChannelID[channelID] = channelName
-	return updateDB()
+	myConf.Connection[index].ChannelID[channelID] = channelName
+	return updateDB(myConf)
 
 }
