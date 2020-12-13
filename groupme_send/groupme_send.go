@@ -3,13 +3,14 @@ package groupme_send
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-const baseurl = "https://api.groupme.com/v3"
+var baseurl = "https://api.groupme.com/v3"
 
 type responseWithImage struct {
 	BotID      string `json:"bot_id"`
@@ -18,12 +19,14 @@ type responseWithImage struct {
 }
 
 //Send groupme message without image
-func Send(BotID string, content string) error {
+func Send(BotID, content string) error {
 	return SendWithImage(BotID, content, "")
 }
 
 //SendWithImage send groupme stuff with image
-func SendWithImage(BotID string, content string, img string) error {
+func SendWithImage(BotID, content, img string) error {
+	img = ProcImage(img)
+
 	buf, err := json.Marshal(responseWithImage{
 		BotID:      BotID,
 		Text:       content,
@@ -40,13 +43,14 @@ func SendWithImage(BotID string, content string, img string) error {
 		return err
 	}
 
+	defer resp.Body.Close()
 	bytes, _ := ioutil.ReadAll(resp.Body)
 
 	if resp.StatusCode != 202 {
 		log.Println("aaaaa" + string(buf))
 		log.Println(string(bytes))
 		log.Println(resp.StatusCode)
-		return err
+		return errors.New("Groupme Server Not Accept")
 	}
 	return nil
 }
