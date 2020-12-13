@@ -7,6 +7,7 @@ require (
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883
 	github.com/bwmarrin/discordgo v0.22.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/google/go-cmp v0.3.0
 	github.com/jinzhu/copier v0.1.0
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect

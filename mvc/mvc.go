@@ -44,6 +44,11 @@ func GroupmeReceive(name, avatar, content, groupID string, attachments []map[str
 	DiscordSend(name, content, avatar, wi, wt, attachments)
 	return nil
 }
+
+var CallWebhook = func(webhookID, webhookToken string, data *discordgo.WebhookParams) {
+	discord_utils.CallWebhook(webhookID, webhookToken, data)
+}
+
 func DiscordSend(name, content, avatar, webhookID, webhookToken string, attachments []map[string]interface{}) error {
 	data := discordgo.WebhookParams{Content: content, Username: name, AvatarURL: avatar}
 	for _, i := range attachments {
@@ -58,8 +63,7 @@ func DiscordSend(name, content, avatar, webhookID, webhookToken string, attachme
 			log.Println(i)
 		}
 	}
-	discord_utils.CallWebhook(webhookID, webhookToken, &data)
-
+	CallWebhook(webhookID, webhookToken, &data)
 	return nil
 }
 

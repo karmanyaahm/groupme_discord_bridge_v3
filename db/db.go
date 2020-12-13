@@ -179,3 +179,7 @@ func AddChannelName(channelID, channelName string) error {
 	return updateDB(myConf)
 
 }
+
+func SetConfig(c Config) {
+	conf = c
+}
