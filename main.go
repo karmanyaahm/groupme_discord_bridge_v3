@@ -33,7 +33,8 @@ func main() {
 
 	discord.Main()
 	groupme.Listen()
-
-	time.Sleep(1 * time.Minute)
-
+	for {
+		log.Println("Sleeping")
+		time.Sleep(1 * time.Hour)
+	}
 }
