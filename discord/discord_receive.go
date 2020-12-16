@@ -49,10 +49,12 @@ func Close() {
 	log.Println("Discord Shut Down")
 }
 
-func nameFromMessage(m *discordgo.MessageCreate) string {
+func nameFromMessage(m *discordgo.Message) string {
 	name := m.Author.Username
-	if len(m.Member.Nick) > 0 {
-		name = m.Member.Nick
+	if m.Member != nil {
+		if len(m.Member.Nick) > 0 {
+			name = m.Member.Nick
+		}
 	}
 	return name
 
@@ -61,8 +63,16 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.Bot { // ignore itself //ignore all bots not just itself
 		return
 	}
-
-	err := mvc.DiscordReceive(nameFromMessage(m), m.Content, m.ChannelID, m.Attachments)
+	var rm *discordgo.Message = nil
+	var replyName string
+	if m.MessageReference != nil {
+		mrm, err := (*session).ChannelMessage(m.MessageReference.ChannelID, m.MessageReference.MessageID)
+		if err == nil {
+			rm = mrm
+		}
+		replyName = nameFromMessage(mrm)
+	}
+	err := mvc.DiscordReceive(nameFromMessage(m.Message), m.Content, m.ChannelID, m.Attachments, rm, replyName)
 	if err != nil {
 		fmt.Println(err)
 	}

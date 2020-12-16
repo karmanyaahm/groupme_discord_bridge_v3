@@ -67,7 +67,7 @@ func DiscordSend(name, content, avatar, webhookID, webhookToken string, attachme
 	return nil
 }
 
-func DiscordReceive(name, content, channelID string, attachments []*discordgo.MessageAttachment) error {
+func DiscordReceive(name, content, channelID string, attachments []*discordgo.MessageAttachment, reply *discordgo.Message, replyName string) error {
 	channelName, err := db.ChannelNameFromChannelID(channelID)
 	channelPostfix := ": "
 
@@ -102,15 +102,28 @@ func DiscordReceive(name, content, channelID string, attachments []*discordgo.Me
 		log.Println(err)
 		log.Println(channelID)
 	}
+	var replyContent string
+	if reply != nil {
 
-	GroupmeSend(name, content, channelName+channelPostfix, botID, attachments)
+		if len(reply.Content) > 30 {
+			replyContent = reply.Content[:30] + "..."
+		} else {
+			replyContent = reply.Content
+		}
+	}
+	GroupmeSend(name, content, channelName+channelPostfix, botID, replyName, replyContent, attachments)
 	return nil
 }
 
-func GroupmeSend(name, content, channelPrefix, botID string, attachments []*discordgo.MessageAttachment) {
+func GroupmeSend(name, content, channelPrefix, botID, replyName, replyContent string, attachments []*discordgo.MessageAttachment) {
 	//log.Println(name, content, channelName)
-
-	groupme_send.Send(botID, fmt.Sprintf("%s%s: %s", channelPrefix, name, content))
+	var msg string
+	if len(replyContent) > 0 {
+		msg = fmt.Sprintf("%s\n> %s: %s\n\n%s: %s", channelPrefix, replyName, replyContent, name, content)
+	} else {
+		msg = fmt.Sprintf("%s%s: %s", channelPrefix, name, content)
+	}
+	groupme_send.Send(botID, msg)
 	for _, attachment := range attachments {
 		if m, e := regexp.Match(`(?i)\.(gif|jpe?g|tiff?|png|webp|bmp)$`, []byte(attachment.Filename)); m {
 			//log.Println("image")
