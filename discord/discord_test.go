@@ -23,7 +23,7 @@ func TestNameProccessor(t *testing.T) {
 
 	for ans, msg := range objs {
 		t.Log("running: " + ans)
-		if ans != nameFromMessage(&msg) {
+		if ans != nameFromMessage(msg.Message) {
 			t.Log(ans)
 			t.Fail()
 		}
