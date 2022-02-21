@@ -1,5 +1,7 @@
 # groupme_discord_bridge_v3
 
+btw this project isn't dead, it's completed and is good enough and being used in production
+
  To install, copy config.toml.example into config.toml in the current working directory of the binary running.  
  This will sync messages and images from one or more discord channels (on the same server or not) into one groupme chat.  
  Creating a discord bot and inviting it to the server, and creating a groupme bot in the chat is required.
