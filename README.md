@@ -1,6 +1,15 @@
 # groupme_discord_bridge_v3
 
-btw this project isn't dead, it's completed and is good enough and being used in production, however it probably won't get any new features as I have personally mostly abandoned groupme and my friends just use it
+
+This project is completed and has been running in production syncing my school's CS and Math club chats uninterrupted since 2020. This is arguably the most useful and set-it-and-forget-it software I have ever made (as of 2022). I continue to run this, however, it won't be updated as I rarely use GroupMe anymore.
+
+This is what the chats look like (notice the Bot designation on users from the other side):
+![](./disc_image.png) ![](./gm_image.png)
+
+---
+
+This project syncs chats between Discord and GroupMe.
+I originally wrote this to learn Go and reduce resource usage of the Python bridge I previously used. It uses <20MB RAM in production syncing 3 low traffic chats.
 
  To install, copy config.toml.example into config.toml in the current working directory of the binary running.  
  This will sync messages and images from one or more discord channels (on the same server or not) into one groupme chat.  
